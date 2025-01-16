@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Simulador de Registro MARC – Autoridade de Nome Pessoal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .campo {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .marc-estrutura {
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .marc-indicador,
+    .marc-subcampo {
+      background: #f0f0f0;
+      padding: 5px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      padding: 5px;
+      font-size: 16px;
+      width: auto;
+      flex-grow: 1;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    .resultado.correct {
+      border-color: #4caf50;
+      background-color: #e8f5e9;
+    }
+
+    .resultado.error {
+      border-color: #f44336;
+      background-color: #ffebee;
+    }
+
+    .header-image {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header-image img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header-image">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Clarice_Lispector_%281960%29.jpg" alt="Clarice Lispector">
+    </div>
+    <h1>Simulador de Registro MARC de Autoridade</h1>
+    <p><strong>Exercício</strong>: Construa um registro MARC para o autor <strong>Clarice Lispector</strong>. Preencha os indicadores, subcampos e pontuação conforme o ISBD corretamente.</p>
+    <p><strong>Data Limite:</strong> 17/01/2025</p>
+    <p><strong>Instruções:</strong> Inclua as seguintes remissivas:</p>
+    <ul>
+      <li>Clarice Nascimento Lispector</li>
+      <li>Haia Lispector</li>
+    </ul>
+
+    <!-- Informações do estudante -->
+    <div class="campo">
+      <label for="nome">Nome do Estudante:</label>
+      <input type="text" id="nome" required>
+    </div>
+    <div class="campo">
+      <label for="email">E-mail do Estudante (@ucs.br):</label>
+      <input type="email" id="email" required pattern="[a-zA-Z0-9._%+-]+@ucs\.br$" title="Por favor, use um e-mail @ucs.br">
+    </div>
+
+    <hr>
+
+    <!-- Campo 100 -->
+    <h3>Campo 100 – Nome Autorizado</h3>
+    <div class="campo">
+      <label>Primeiro Indicador:</label>
+      <input type="text" id="indicador100_1" maxlength="1">
+      <label>Segundo Indicador:</label>
+      <input type="text" id="indicador100_2" maxlength="1">
+    </div>
+    <div class="campo">
+      <label>Subcampo $a (Nome):</label>
+      <input type="text" id="campo100a">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao100a">
+    </div>
+    <div class="campo">
+      <label>Subcampo $d (Datas):</label>
+      <input type="text" id="campo100d">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao100d">
+    </div>
+
+    <!-- Campo 400 (Variantes) -->
+    <h3>Campo 400 – Variante Não Autorizada 1</h3>
+    <div class="campo">
+      <label>Primeiro Indicador:</label>
+      <input type="text" id="indicador4001_1" maxlength="1">
+      <label>Segundo Indicador:</label>
+      <input type="text" id="indicador4001_2" maxlength="1">
+    </div>
+    <div class="campo">
+      <label>Subcampo $a (Nome Variante):</label>
+      <input type="text" id="campo400a1">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao400a1">
+    </div>
+    <div class="campo">
+      <label>Subcampo $d (Datas):</label>
+      <input type="text" id="campo400d1">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao400d1">
+    </div>
+
+    <h3>Campo 400 – Variante Não Autorizada 2</h3>
+    <div class="campo">
+      <label>Primeiro Indicador:</label>
+      <input type="text" id="indicador4002_1" maxlength="1">
+      <label>Segundo Indicador:</label>
+      <input type="text" id="indicador4002_2" maxlength="1">
+    </div>
+    <div class="campo">
+      <label>Subcampo $a (Nome Variante):</label>
+      <input type="text" id="campo400a2">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao400a2">
+    </div>
+    <div class="campo">
+      <label>Subcampo $d (Datas):</label>
+      <input type="text" id="campo400d2">
+      <label>Pontuação ISBD:</label>
+      <input type="text" id="pontuacao400d2">
+    </div>
+
+    <button onclick="verificarRespostas()">Verificar Respostas</button>
+
+    <div id="resultado" class="resultado"></div>
+  </div>
+
+  <script src="https://smtpjs.com/v3/smtp.js"></script>
+  <script>
+    // Respostas corretas
+    const respostasCorretas = {
+      "indicador100_1": "1",
+      "indicador100_2": "#",
+      "campo100a": "Lispector, Clarice",
+      "pontuacao100a": ",",
+      "campo100d": "1920-1977",
+      "pontuacao100d": ".",
+      "indicador4001_1": "1",
+      "indicador4001_2": "#",
+      "campo400a1": "Lispector, Clarice Nascimento",
+      "pontuacao400a1": ",",
+      "campo400d1": "1920-1977",
+      "pontuacao400d1": ".",
+      "indicador4002_1": "1",
+      "indicador4002_2": "#",
+      "campo400a2": "Haia Lispector",
+      "pontuacao400a2": ",",
+      "campo400d2": "1920-1977",
+      "pontuacao400d2": "."
+    };
+    // Armazena os resultados em CSV
+    let resultadosCSV = "Nome,E-mail,Campo,Resposta Preenchida,Resposta Correta,Status\n";
+    const dataLimite = new Date("2025-01-17T23:59:59");
+    // Função para verificar respostas
+    function verificarRespostas() {
+      const nome = document.getElementById("nome").value.trim();
+      const email = document.getElementById("email").value.trim();
+      if (!nome || !email) {
+        alert("Por favor, preencha seu nome e e-mail.");
+        return;
+      }
+      if (!email.endsWith("@ucs.br")) {
+        alert("Por favor, use um e-mail @ucs.br.");
+        return;
+      }
+      const respostasEstudante = {
+        "indicador100_1": document.getElementById("indicador100_1").value.trim(),
+        "indicador100_2": document.getElementById("indicador100_2").value.trim(),
+        "campo100a": document.getElementById("campo100a").value.trim(),
+        "pontuacao100a": document.getElementById("pontuacao100a").value.trim(),
+        "campo100d": document.getElementById("campo100d").value.trim(),
+        "pontuacao100d": document.getElementById("pontuacao100d").value.trim(),
+        "indicador4001_1": document.getElementById("indicador4001_1").value.trim(),
+        "indicador4001_2": document.getElementById("indicador4001_2").value.trim(),
+        "campo400a1": document.getElementById("campo400a1").value.trim(),
+        "pontuacao400a1": document.getElementById("pontuacao400a1").value.trim(),
+        "campo400d1": document.getElementById("campo400d1").value.trim(),
+        "pontuacao400d1": document.getElementById("pontuacao400d1").value.trim(),
+        "indicador4002_1": document.getElementById("indicador4002_1").value.trim(),
+        "indicador4002_2": document.getElementById("indicador4002_2").value.trim(),
+        "campo400a2": document.getElementById("campo400a2").value.trim(),
+        "pontuacao400a2": document.getElementById("pontuacao400a2").value.trim(),
+        "campo400d2": document.getElementById("campo400d2").value.trim(),
+        "pontuacao400d2": document.getElementById("pontuacao400d2").value.trim()
+      };
+      const resultadoDiv = document.getElementById("resultado");
+      resultadoDiv.innerHTML = "";
+      let pontuacaoTotal = 1;
+      const totalCampos = Object.keys(respostasEstudante).length;
+      const valorPorCampo = pontuacaoTotal / totalCampos;
+      let pontuacaoObtida = pontuacaoTotal;
+      Object.keys(respostasEstudante).forEach(campo => {
+        const respostaEstudante = respostasEstudante[campo];
+        const respostaCerta = respostasCorretas[campo];
+        const mensagem = respostaEstudante === respostaCerta ?
+          `✅ ${campo} preenchido corretamente!` :
+          `❌ ${campo}: Você preencheu "${respostaEstudante}" mas o correto é "${respostaCerta}".`;
+        resultadoDiv.innerHTML += `<p>${mensagem}</p>`;
+        // Registrar no CSV
+        const status = respostaEstudante === respostaCerta ? "Correto" : "Incorreto";
+        resultadosCSV += `${nome},${email},${campo},${respostaEstudante},${respostaCerta},${status}\n`;
+        if (status === "Incorreto") {
+          pontuacaoObtida -= valorPorCampo;
+        }
+      });
+      resultadoDiv.innerHTML += `<p>Pontuação Final: ${pontuacaoObtida.toFixed(2)} / ${pontuacaoTotal}</p>`;
+      // Verificar se a data limite foi atingida
+      const agora = new Date();
+      if (agora >= dataLimite) {
+        // Enviar o e-mail
+        Email.send({
+          SecureToken: "YOUR_SMTPJS_TOKEN",
+          To: "lkpereira@ucs.br",
+          From: email,
+          Subject: `Atividade Registro MARC de ${nome}`,
+          Body: `Resultados do estudante ${nome}:\n\n${resultadosCSV.replace(/,/g, "\t")}`
+        }).then(message => {
+          alert("Respostas enviadas ao professor com sucesso!");
+        });
+      } else {
+        alert("A planilha será enviada ao professor após a data limite.");
+      }
+    }
+  </script>
+</body>
+
+</html>
